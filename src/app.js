@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { postParticipants, getParticipants, postMessages } = hooks;
+const { postParticipants, getParticipants, postMessages, getMessages } = hooks;
 import schemas from './joiSetup.js';
-const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader } = schemas;
+const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader } = schemas;
 
 const app = express();
 app.use(express.json());
@@ -31,6 +31,20 @@ app.post('/messages', async (req, res) => {
             schemaPostMessagesHeader.validateAsync(req.headers)
         ]);
         postMessages(req, res, db);
+    } catch (err) {
+        res.status(422).send(err.message);
+    }
+});
+
+app.get('/messages', async (req, res) => {
+    try {
+        await schemaGetMessagesHeader.validateAsync(req.headers);
+        let limit = undefined;
+        if (req.query.limit) {
+            await schemaGetMessagesQuery.validateAsync({ limit: req.query.limit });
+            limit = Number(req.query.limit);
+        }
+        getMessages(req, res, db, limit);
     } catch (err) {
         res.status(422).send(err.message);
     }

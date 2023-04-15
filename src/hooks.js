@@ -40,7 +40,6 @@ async function postMessages(req, res, db) {
         res.status(422).send('user not registered');
         return
     }
-
     try {
         await db.collection('messages').insertOne({
             from: req.headers.user,
@@ -55,10 +54,27 @@ async function postMessages(req, res, db) {
     }
 }
 
+async function getMessages(req, res, db, limit) {
+    try {
+        const messageRequeriments = {
+            $or: [
+                { from: req.headers.user },
+                { to: req.headers.user },
+                { to: "Todos" }
+            ]
+        }
+        const messages = await db.collection('messages').find(messageRequeriments).sort({ _id: -1 }).limit(limit || 0).toArray(); // limit = 0 é o padrão
+        res.status(200).send(messages);
+    } catch (err) {
+        res.status(500).send(err);
+    }
+}
+
 const hooks = {
     postParticipants,
     getParticipants,
-    postMessages
+    postMessages,
+    getMessages
 }
 
 export default hooks

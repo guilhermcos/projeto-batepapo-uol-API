@@ -14,10 +14,19 @@ const schemaPostMessagesHeader = Joi.object({
     user: Joi.string().min(1).required()
 }).unknown(true);
 
+const schemaGetMessagesHeader = Joi.object({
+    user: Joi.string().min(1).required()
+}).unknown(true);
+
+const schemaGetMessagesQuery = Joi.object({
+    limit: Joi.number().integer().min(1)
+}).unknown(true);
 
 const schemas = {
     schemaPostParticipants,
     schemaPostMessagesBody,
-    schemaPostMessagesHeader
+    schemaPostMessagesHeader,
+    schemaGetMessagesQuery,
+    schemaGetMessagesHeader
 };
 export default schemas
