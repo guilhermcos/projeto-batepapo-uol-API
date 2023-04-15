@@ -24,9 +24,19 @@ async function postParticipants(body, res, db) {
     }
 }
 
+async function getParticipants(req, res, db) {
+    try {
+        const allParticipants = await db.collection('participants').find().toArray();
+        res.status(200).send(allParticipants);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('não funcionou');
+    }
+}
 
 const hooks = {
-    postParticipants
+    postParticipants,
+    getParticipants
 }
 
 export default hooks

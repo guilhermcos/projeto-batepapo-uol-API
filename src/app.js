@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { postParticipants } = hooks;
+const { postParticipants, getParticipants } = hooks;
 import schemas from './joiSetup.js';
 const { schemaPostParticipants } = schemas;
 
@@ -21,7 +21,7 @@ app.post('/participants', async (req, res) => {
 })
 
 app.get('/participants', (req, res) => {
-      
+    getParticipants(req, res, db);
 })
 
 
