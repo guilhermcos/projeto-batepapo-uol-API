@@ -7,17 +7,19 @@ async function postParticipants(body, res, db) {
         return
     }
     try {
-        await db.collection('participants').insertOne({
-            name: body.name,
-            lastStatus: Date.now()
-        });
-        await db.collection('messages').insertOne({
-            from: body.name,
-            to: 'Todos',
-            text: 'entra na sala...',
-            type: 'status',
-            time: dayjs(Date.now()).format('HH:mm:ss')
-        });
+        await Promise.all([
+            db.collection('participants').insertOne({
+                name: body.name,
+                lastStatus: Date.now()
+            }),
+            db.collection('messages').insertOne({
+                from: body.name,
+                to: 'Todos',
+                text: 'entra na sala...',
+                type: 'status',
+                time: dayjs(Date.now()).format('HH:mm:ss')
+            })
+        ])
         res.status(201).send('OK');
     } catch {
         res.status(500).send('internal server error');
