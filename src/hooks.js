@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 
 async function postParticipants(body, res, db) {
-    const isAlreadyCreated = await db.collection('participants').findOne({ name: body.name })
-    if (isAlreadyCreated) {
+    const existingParticipant = await db.collection('participants').findOne({ name: body.name })
+    if (existingParticipant) {
         res.status(409).send("user already exists")
         return
     }
@@ -19,7 +19,6 @@ async function postParticipants(body, res, db) {
             time: dayjs(Date.now()).format('HH:mm:ss')
         })
         res.status(201).send('ta funcionando');
-
     } catch {
         res.status(500).send('não funcionou');
     }
@@ -29,4 +28,5 @@ async function postParticipants(body, res, db) {
 const hooks = {
     postParticipants
 }
+
 export default hooks

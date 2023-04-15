@@ -17,11 +17,11 @@ dbSetup().then((res) => db = res).catch((err) => console.log(err.message));
 app.post('/participants', async (req, res) => {
     await schemaPostParticipants.validateAsync(req.body)
     .then(() => postParticipants(req.body, res, db))
-    .catch((err) =>  {res.status(422).send(err.message); return});
+    .catch((err) =>  res.status(422).send(err.message));
 })
 
 app.get('/participants', (req, res) => {
-
+      
 })
 
 
