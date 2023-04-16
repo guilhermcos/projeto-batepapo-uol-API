@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { postParticipants, getParticipants, postMessages, getMessages, postStatus } = hooks;
+const { postParticipants, getParticipants, postMessages, getMessages, postStatus, onlineChecker } = hooks;
 import schemas from './joiSetup.js';
 const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader, schemaPostStatus } = schemas;
 
@@ -13,6 +13,8 @@ app.use(cors());
 //dataBase (Mongodb) config.
 let db;
 dbSetup().then((res) => db = res).catch((err) => console.log(err.message));
+
+setInterval(() => { onlineChecker(db) }, 15000);
 
 app.post('/participants', async (req, res) => {
     await schemaPostParticipants.validateAsync(req.body)

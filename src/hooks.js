@@ -82,19 +82,42 @@ async function postStatus(req, res, db) {
             name: req.headers.user,
             lastStatus: Date.now()
         };
-        await db.collection('participants').updateOne({ name: req.headers.user }, {$set: editedParticipant});
+        await db.collection('participants').updateOne({ name: req.headers.user }, { $set: editedParticipant });
         res.status(200).send('OK');
     } catch (err) {
         res.status(500).send(err);
     }
 };
 
+async function onlineChecker(db) {
+    const tenSecAgo = Date.now() - 10000;
+    try {
+        const timedOutParticipants = await db.collection('participants').find({ lastStatus: { $lt: tenSecAgo } }).toArray();
+        if (timedOutParticipants.length === 0) {
+            return
+        }
+        timedOutParticipants.map(async (participant) => {
+            await db.collection('participants').deleteOne({ _id: participant._id })
+            await db.collection('messages').insertOne({
+                from: participant.name,
+                to: 'Todos',
+                text: 'sai da sala...',
+                type: 'status',
+                time: dayjs(Date.now()).format('HH:mm:ss')
+            });
+        })
+    } catch (err) {
+        console.log(err.message);
+    }
+}
+
 const hooks = {
     postParticipants,
     getParticipants,
     postMessages,
     getMessages,
-    postStatus
+    postStatus,
+    onlineChecker
 }
 
 export default hooks
