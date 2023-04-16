@@ -72,11 +72,29 @@ async function getMessages(req, res, db, limit) {
     }
 }
 
+async function postStatus(req, res, db) {
+    try {
+        const existingParticipant = await db.collection('participants').findOne({ name: req.headers.user });
+        if (!existingParticipant) {
+            return res.status(404).send('user not registered');
+        }
+        const editedParticipant = {
+            name: req.headers.user,
+            lastStatus: Date.now()
+        };
+        await db.collection('participants').updateOne({ name: req.headers.user }, {$set: editedParticipant});
+        res.status(200).send('OK');
+    } catch (err) {
+        res.status(500).send(err);
+    }
+};
+
 const hooks = {
     postParticipants,
     getParticipants,
     postMessages,
-    getMessages
+    getMessages,
+    postStatus
 }
 
 export default hooks

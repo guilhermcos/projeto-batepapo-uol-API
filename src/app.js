@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { postParticipants, getParticipants, postMessages, getMessages } = hooks;
+const { postParticipants, getParticipants, postMessages, getMessages, postStatus } = hooks;
 import schemas from './joiSetup.js';
-const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader } = schemas;
+const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader, schemaPostStatus } = schemas;
 
 const app = express();
 app.use(express.json());
@@ -48,6 +48,12 @@ app.get('/messages', async (req, res) => {
     } catch (err) {
         res.status(422).send(err.message);
     }
+});
+
+app.post('/status', async (req, res) => {
+    await schemaPostStatus.validateAsync(req.headers)
+        .then(() => postStatus(req, res, db))
+        .catch((err) => res.status(404).send(err.message))
 });
 
 
