@@ -26,6 +26,10 @@ const schemaPostStatus = Joi.object({
     user: Joi.string().min(1).required()
 }).unknown(true);
 
+const schemaDeleteMessagesHeader = Joi.object({
+    user: Joi.string().min(1).required()
+}).unknown(true);
+
 const schemaTrim = Joi.string().trim();
 
 const schemas = {
@@ -35,6 +39,7 @@ const schemas = {
     schemaGetMessagesQuery,
     schemaGetMessagesHeader,
     schemaPostStatus,
-    schemaTrim
+    schemaTrim,
+    schemaDeleteMessagesHeader
 };
 export default schemas

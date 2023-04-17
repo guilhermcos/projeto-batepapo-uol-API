@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { postParticipants, getParticipants, postMessages, getMessages, postStatus, onlineChecker } = hooks;
+const { deleteMessage ,postParticipants, getParticipants, postMessages, getMessages, postStatus, onlineChecker } = hooks;
 import schemas from './joiSetup.js';
-const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader, schemaPostStatus } = schemas;
+const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader, schemaPostStatus, schemaDeleteMessagesHeader } = schemas;
 
 const app = express();
 app.use(express.json());
@@ -56,6 +56,15 @@ app.post('/status', async (req, res) => {
     await schemaPostStatus.validateAsync(req.headers)
         .then(() => postStatus(req, res, db))
         .catch((err) => res.status(404).send(err.message))
+});
+
+app.delete('/messages/:id', async (req, res) => {
+    try {
+        await schemaDeleteMessagesHeader.validateAsync(req.headers);
+        deleteMessage(req, res, db);
+    } catch (err) {
+        res.status(422).send(err.message);
+    }
 });
 
 

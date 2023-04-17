@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import Joi from "joi";
 import { stripHtml } from "string-strip-html";
 import schemas from "./joiSetup.js";
+import { ObjectId } from "bson";
 const { schemaTrim } = schemas;
 
 async function postParticipants(body, res, db) {
@@ -115,13 +116,31 @@ async function onlineChecker(db) {
     }
 }
 
+async function deleteMessage(req, res, db) {
+    const { id } = req.params;
+    try {
+        const message = await db.collection('messages').findOne({ _id: new ObjectId(id) });
+        if (message === null) {
+            res.status(404).send('message not found');
+            return;
+        } else if (message.from !== req.headers.user) {
+            res.status(401).send('UNAUTHORIZED');
+        }
+        await db.collection('messages').deleteOne({ _id: new ObjectId(id) });
+        res.status(200).send('message deleted');
+    } catch (err) {
+        res.status(500).send('internal server error');
+    }
+}
+
 const hooks = {
     postParticipants,
     getParticipants,
     postMessages,
     getMessages,
     postStatus,
-    onlineChecker
+    onlineChecker,
+    deleteMessage
 }
 
 export default hooks
