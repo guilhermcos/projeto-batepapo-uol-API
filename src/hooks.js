@@ -1,4 +1,8 @@
 import dayjs from "dayjs";
+import Joi from "joi";
+import { stripHtml } from "string-strip-html";
+import schemas from "./joiSetup.js";
+const { schemaTrim } = schemas;
 
 async function postParticipants(body, res, db) {
     const existingParticipant = await db.collection('participants').findOne({ name: body.name });
@@ -9,11 +13,11 @@ async function postParticipants(body, res, db) {
     try {
         await Promise.all([
             db.collection('participants').insertOne({
-                name: body.name,
+                name: stripHtml(schemaTrim.validate(body.name).value).result,
                 lastStatus: Date.now()
             }),
             db.collection('messages').insertOne({
-                from: body.name,
+                from: stripHtml(schemaTrim.validate(body.name).value).result,
                 to: 'Todos',
                 text: 'entra na sala...',
                 type: 'status',
@@ -44,15 +48,15 @@ async function postMessages(req, res, db) {
     }
     try {
         await db.collection('messages').insertOne({
-            from: req.headers.user,
-            to: req.body.to,
-            text: req.body.text,
-            type: req.body.type,
+            from: stripHtml(schemaTrim.validate(req.headers.user).value).result,
+            to: stripHtml(schemaTrim.validate(req.body.to).value).result,
+            text: stripHtml(schemaTrim.validate(req.body.text).value).result,
+            type: stripHtml(req.body.type).result,
             time: dayjs(Date.now()).format('HH:mm:ss')
         });
         res.status(201).send('OK');
     } catch (err) {
-        res.send(500).send('internal server error');
+        res.status(500).send('internal server error');
     }
 }
 

@@ -26,12 +26,15 @@ const schemaPostStatus = Joi.object({
     user: Joi.string().min(1).required()
 }).unknown(true);
 
+const schemaTrim = Joi.string().trim();
+
 const schemas = {
     schemaPostParticipants,
     schemaPostMessagesBody,
     schemaPostMessagesHeader,
     schemaGetMessagesQuery,
     schemaGetMessagesHeader,
-    schemaPostStatus
+    schemaPostStatus,
+    schemaTrim
 };
 export default schemas
