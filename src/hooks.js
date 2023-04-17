@@ -133,6 +133,32 @@ async function deleteMessage(req, res, db) {
     }
 }
 
+async function editMessage(req, res, db) {
+    const { id } = req.params;
+    try {
+        const message = await db.collection('messages').findOne({ _id: new ObjectId(id) });
+        if (message === null) {
+            res.status(404).send('message not found');
+            return;
+        } else if (message.from !== req.headers.user) {
+            res.status(401).send('UNAUTHORIZED');
+            return;
+        }
+        const editedMessage = {
+            from: message.from,
+            to: stripHtml(schemaTrim.validate(req.body.to).value).result,
+            text: stripHtml(schemaTrim.validate(req.body.text).value).result,
+            type: stripHtml(schemaTrim.validate(req.body.type).value).result,
+            time: message.time
+        }
+        await db.collection('messages').updateOne({ _id: new ObjectId(id) }, { $set: editedMessage });
+        res.status(200).send('message edited');
+    } catch (err) {
+        res.status(500).send('internal server error');
+    }
+
+}
+
 const hooks = {
     postParticipants,
     getParticipants,
@@ -140,7 +166,8 @@ const hooks = {
     getMessages,
     postStatus,
     onlineChecker,
-    deleteMessage
+    deleteMessage,
+    editMessage
 }
 
 export default hooks

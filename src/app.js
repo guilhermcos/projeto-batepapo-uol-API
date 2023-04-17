@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dbSetup from './dataBaseSetup.js';
 import hooks from './hooks.js'
-const { deleteMessage ,postParticipants, getParticipants, postMessages, getMessages, postStatus, onlineChecker } = hooks;
+const { editMessage, deleteMessage, postParticipants, getParticipants, postMessages, getMessages, postStatus, onlineChecker } = hooks;
 import schemas from './joiSetup.js';
 const { schemaPostParticipants, schemaPostMessagesBody, schemaPostMessagesHeader, schemaGetMessagesQuery, schemaGetMessagesHeader, schemaPostStatus, schemaDeleteMessagesHeader } = schemas;
 
@@ -62,6 +62,16 @@ app.delete('/messages/:id', async (req, res) => {
     try {
         await schemaDeleteMessagesHeader.validateAsync(req.headers);
         deleteMessage(req, res, db);
+    } catch (err) {
+        res.status(422).send(err.message);
+    }
+});
+
+app.put('/messages/:id', async (req, res) => {
+    try {
+        await schemaPostMessagesBody.validateAsync(req.body);
+        await schemaPostMessagesHeader.validateAsync(req.headers);
+        editMessage(req, res, db);
     } catch (err) {
         res.status(422).send(err.message);
     }
